@@ -1,7 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using Medical.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 // DATABASE
 builder.Services.AddDbContext<MedicalContext>(options =>
@@ -40,6 +48,7 @@ var app = builder.Build();
 
 
 // MIDDLEWARE PIPELINE
+app.UseForwardedHeaders();
 app.UseHttpsRedirection();
 app.UseStaticFiles();      // <--- REQUIRED
 app.UseCookiePolicy();     // <--- REQUIRED FOR IFRAME SUPPORT

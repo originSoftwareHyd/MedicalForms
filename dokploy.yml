@@ -9,7 +9,8 @@ services:
       - ASPNETCORE_URLS=http://+:8080
       - ConnectionStrings__MedicalContext=Server=db;Database=MedicalDb;User Id=sa;Password=${MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true;
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - medical-net
       - dokploy-network
@@ -34,7 +35,8 @@ services:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -Q 'SELECT 1' -C"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 20
+      start_period: 60s
 
   db-gui:
     image: adminer
